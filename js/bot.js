@@ -1,6 +1,7 @@
 const Telegraf = require("telegraf");
 const Telegram = require("telegraf/telegram");
 const Extra = require('telegraf/extra')
+const Markup = require('telegraf/markup')
 const download = require("image-downloader");
 const moment = require("moment");
 const exec = require("child_process").exec;
@@ -8,6 +9,13 @@ const fs = require(`fs`);
 const botReply = require('./botReply');
 const { HORIZONTAL_ALIGN_LEFT } = require("jimp");
 const commandParts = require('telegraf-command-parts');
+
+
+const buttons = Telegraf.Extra.markup((m) =>
+  m.inlineKeyboard([
+      [ m.callbackButton('Delete Image', 'deleteImage') ]
+  ])
+)
 
 "use strict";
 
@@ -19,6 +27,7 @@ var Bot = class {
   ) {
     var self = this;
     this.bot = new Telegraf(config.botToken);
+    this.extra = new Extra();
     this.telegram = new Telegram(config.botToken);
     this.logger = logger;
     this.imageWatchdog = imageWatchdog;
@@ -131,9 +140,18 @@ var Bot = class {
               // let bot reply, if wanted and Download was successful
               if (config.botReply) {
                 if (fileExtension.match(/\.(mp4|gif)$/)){
+                  this.bot.reply("Thanks. Video: " + this.imageWatchdog.images.length, Extra.inReplyto(ctx.message.id))
                   botReply(ctx, 'videoReceived');
                 } else if (fileExtension.match(/\.(jpg|png)$/)){
-                  botReply(ctx, 'imageReceived');
+                  //botReply(ctx, 'imageReceived');
+                  ctx.reply("Thanks. Video: " + this.imageWatchdog.images.length,
+                         Extra.inReplyTo(ctx.message.message_id)
+                         .markup(Markup.inlineKeyboard([Markup.callbackButton('Oh no - Delete Image', 'deleteImage')])))
+                  //{ reply_markup: buttons.reply_markup })
+                  
+
+                
+                  //this.bot.reply("Thanks. Video: " + this.imageWatchdog.images.length, Extra.)
                 }
               }
             })
@@ -151,6 +169,17 @@ var Bot = class {
           ctx.reply('Sorry: ' + err.toString());
         });
     });
+
+    this.bot.action('deleteImage', (ctx) => {
+
+      for (let i = 0; i < this.imageWatchdog.images.length; i++) {
+        if (this.imageWatchdog.images[i].messageId == ctx.callbackQuery.message.reply_to_message.message_id) {
+          this.deleteImage(ctx,i)
+        }
+      }
+
+      ctx.editMessageText('Ok - Deleted')
+    })
 
     this.bot.catch((err) => {
       this.logger.error(err.stack);
