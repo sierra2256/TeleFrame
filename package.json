@@ -24,6 +24,7 @@
     "dotenv": "^8.2.0",
     "electron": "^7.2.4",
     "image-downloader": "^3.5.0",
+    "jimp": "^0.16.1",
     "jquery": "^3.5.0",
     "moment": "^2.24.0",
     "node-audiorecorder": "^1.4.2",
@@ -32,6 +33,7 @@
     "sweetalert": "^2.1.2",
     "sweetalert2": "^9.5.4",
     "telegraf": "^3.35.0",
+    "telegraf-command-parts": "^1.0.3",
     "velocity-animate": "^1.5.2",
     "winston": "^3.2.1"
   }

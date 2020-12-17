@@ -7,6 +7,9 @@ var i18n = {
   hiReply: (name, chatId) => `Hallo ${name} \nDeine ChatID ist ${chatId}`,
   // Text der ausgegeben wird, wenn das empfangene Dokument ein nicht unterstütztes Dateiformat hat
   documentFormatError: 'Dieses Dokument hat ein unbekanntes Dateiformat.',
+  noImages: 'Leider keine Bilder vorhanden.',
+  imagesDeleted: "Bilder sind gelöscht.",
+  imageNotExisting: "Bild existiert nicht.",
 };
 
 /*************** DO NOT EDIT THE LINE BELOW ***************/

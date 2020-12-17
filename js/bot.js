@@ -6,6 +6,10 @@ const moment = require("moment");
 const exec = require("child_process").exec;
 const fs = require(`fs`);
 const botReply = require('./botReply');
+const { HORIZONTAL_ALIGN_LEFT } = require("jimp");
+const commandParts = require('telegraf-command-parts');
+
+"use strict";
 
 var Bot = class {
   constructor(
@@ -19,6 +23,7 @@ var Bot = class {
     this.logger = logger;
     this.imageWatchdog = imageWatchdog;
     this.config = config;
+    this.bot.use(commandParts())
 
     //get bot name
     this.bot.telegram.getMe().then((botInfo) => {
@@ -158,6 +163,35 @@ var Bot = class {
     });
 
 
+    this.bot.command("deleteImages", (ctx) => {
+      this.logger.info(ctx.state.command.args)
+
+      if (ctx.state.command.splitArgs.length > 1) {
+        if (isNaN(ctx.state.command.splitArgs[0])){
+          if (ctx.state.command.splitArgs[0] == "list") {
+            this.retunrImageList(ctx)
+          }
+        } else {
+          ctx.state.command.splitArgs.forEach(index => {
+            this.deleteImage(ctx, parseInt(index))  
+          });
+          botReply(ctx, "imagesDeleted")
+        }
+
+
+      } else {
+        if (isNaN(ctx.state.command.args)){
+          if (ctx.state.command.args == "list") {
+            this.returnImageList(ctx)
+          }
+        } else {
+          let index = parseInt(ctx.state.command.args)
+          this.deleteImage(ctx, index) 
+        }
+      }
+
+    })
+
     //Add Admin Actions from config to Bot-Command
     if(this.config.adminAction.allowAdminAction ){
       var actions = this.config.adminAction.actions;
@@ -191,7 +225,37 @@ var Bot = class {
     this.logger.info("Bot created!");
   }
 
+  returnImageList(ctx){
 
+    if (this.imageWatchdog.images.length == 0){
+      botReply(ctx, 'noImages')
+    }
+
+    for (let i = 0; i < this.imageWatchdog.images.length; i++) {
+      ctx.reply(i + " - " + this.imageWatchdog.images[i].src);
+      let fileName = this.imageWatchdog.images[i].src;
+      let imageCaption = i;
+      let Jimp = require("jimp")
+      let loadedImage
+      
+      Jimp.read(fileName)
+        .then(function (image){
+          loadedImage = image;
+          return Jimp.loadFont(Jimp.FONT_SANS_128_BLACK);
+        })
+        .then(function (font) {
+          loadedImage.print(font, 10,10,i)
+          loadedImage.getBuffer(Jimp.MIME_PNG, (err,buffer) => {
+            ctx.replyWithPhoto({ source : buffer, caption: imageCaption})
+        })
+      })
+        .catch(function (err) {
+          console.log(err);
+        });
+    };
+   
+
+  }
 
   startBot() {
     //Start bot
@@ -200,6 +264,17 @@ var Bot = class {
       setTimeout(() => self.startBot(), 30000)
     );
     this.logger.info("Bot started!");
+  }
+
+  deleteImage(ctx, index){
+
+    if (index >= this.imageWatchdog.images.length) {
+      botReply(ctx, "imageNotExisting")
+      return
+    }
+
+    this.imageWatchdog.deleteImage(index);
+
   }
 
   newImage(src, sender, caption, chatId, chatName, messageId) {

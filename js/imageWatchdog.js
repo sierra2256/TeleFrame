@@ -104,6 +104,7 @@ var ImageWatchdog = class {
       'unseen': true
     });
 
+
     //console.log(this.imageCount);
     while (this.images.length > this.imageCount) {
       //console.log("yay");
@@ -153,6 +154,21 @@ var ImageWatchdog = class {
     });
   }
 
+  deleteImage(idx2bedeleted) {
+    //deleteImage
+
+    if (this.images.length <= idx2bedeleted){
+      return
+    }
+
+    if (this.images[idx2bedeleted].starred) {
+      this.imageCount--;
+    }
+    this.autoDeleteImage(idx2bedeleted);
+    this.images.splice(idx2bedeleted, 1)
+    this.saveImageArray();
+    this.addonHandler.executeEventCallbacks('imageDeleted');
+  }
 }
 
 /*************** DO NOT EDIT THE LINE BELOW ***************/

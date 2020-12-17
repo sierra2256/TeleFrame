@@ -38,6 +38,13 @@ var i18n = {
   // image received
   videoReceivedError: '\u{274C}\u{1F3A5}',
 
+  noImages: 'Unfortunately, no image are available.',
+
+  imagesDeleted: "Image deleted.",
+
+  imageNotExisting: "Image not existing.",
+
+
 };
 
 /*************** DO NOT EDIT THE LINE BELOW ***************/

@@ -60,6 +60,19 @@ var ImageWatchdog = class {
     this.saveImageArray();
   }
 
+  deleteImage(idx2bedeleted) {
+    //deleteImage
+    if (this.images.length <= idx2bedeleted){
+      return
+    }
+
+    if (this.images[idx2bedeleted].starred) {
+      this.imageCount--;
+    }
+    this.images.splice(idx2bedeleted, 1)
+    this.saveImageArray();
+  }
+
   saveImageArray() {
     var self = this;
     // stringify JSON Object
